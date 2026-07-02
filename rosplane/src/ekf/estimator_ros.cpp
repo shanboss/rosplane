@@ -323,8 +323,15 @@ void EstimatorROS::update_barometer_calibration(const rosflight_msgs::msg::Barom
 
     //Check that it got a good calibration.
     std::sort(init_static_vector_.begin(), init_static_vector_.end());
-    float q1 = (init_static_vector_[24] + init_static_vector_[25]) / 2.0;
-    float q3 = (init_static_vector_[74] + init_static_vector_[75]) / 2.0;
+
+    int n = init_static_vector_.size();
+    
+    int q1_index = n / 4 - 1;       // equivalent to 25 when n=100 (since 100/4 - 1 = 24)
+    int q3_index = (3 * n) / 4 - 1; // equivalent to 74 when n=100 (since 300/4 - 1 = 74)
+
+    float q1 = (init_static_vector_[q1_index] + init_static_vector_[q1_index+1]) / 2.0;
+    float q3 = (init_static_vector_[q3_index] + init_static_vector_[q3_index+1]) / 2.0;
+
     float IQR = q3 - q1;
     float upper_bound = q3 + 2.0 * IQR;
     float lower_bound = q1 - 2.0 * IQR;
